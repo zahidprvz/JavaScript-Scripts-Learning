@@ -1,31 +1,32 @@
 function confirmHighPriority(executionContext) {
-    console.log("✅ JavaScript Loaded! (confirmHighPriority function executed)"); 
+    console.log("JavaScript Loaded: confirmHighPriority executed");
 
-    var formContext = executionContext.getFormContext();
+    const formContext = executionContext.getFormContext();
     if (!formContext) {
-        console.error("❌ Error: Form Context is null.");
+        console.error("Error: Unable to retrieve form context.");
         return;
     }
 
-    console.log("🔍 Checking Priority Field...");
-    var priorityField = formContext.getAttribute("prioritycode");
+    console.log("Checking the priority field...");
+    const priorityField = formContext.getAttribute("prioritycode");
+
     if (!priorityField) {
-        console.error("❌ Error: Priority field not found.");
+        console.error("Error: Priority field not found.");
         return;
     }
 
-    var priorityValue = priorityField.getValue();
-    console.log("📌 Priority Value Retrieved:", priorityValue);
+    const priorityValue = priorityField.getValue();
+    console.log(`Retrieved Priority Value: ${priorityValue}`);
 
-    // Assuming 1 = High Priority (Check your system for correct value)
+    // Assuming that number 1 represents High Priority
     if (priorityValue === 1) { 
-        var userResponse = confirm("⚠️ The priority is set to HIGH. Are you sure you want to continue?");
+        const userConfirmed = confirm("The priority is set to HIGH. Are you sure you want to proceed?");
         
-        if (!userResponse) {
-            console.log("🚫 User clicked 'No'. Preventing Save.");
-            executionContext.getEventArgs().preventDefault(); // Stops the save process
+        if (!userConfirmed) {
+            console.log("User chose 'No'. Preventing save action.");
+            executionContext.getEventArgs().preventDefault();
         } else {
-            console.log("✅ User clicked 'Yes'. Case will be saved.");
+            console.log("User confirmed. Proceeding with save.");
         }
     }
 }

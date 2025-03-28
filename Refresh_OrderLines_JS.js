@@ -1,12 +1,13 @@
 function refreshOrderLines(executionContext) {
-    var formContext = executionContext.getFormContext(); // Get the form context
+    const formContext = executionContext.getFormContext();
 
-    // Ensure the subgrid exists before refreshing
-    var subgrid = formContext.getControl("salesorderdetailsGrid");
+    const subgrid = formContext.getControl("salesorderdetailsGrid");
+
+    // if subgrid exists then refresh the subgrid
     if (subgrid) {
-        subgrid.refresh(); // Refresh the subgrid
-        console.log("salesorderdetailsGrid subgrid has been refreshed successfully.");
+        subgrid.refresh();
+        console.log("Sales order details grid refreshed successfully.");
     } else {
-        console.log("salesorderdetailsGrid subgrid not found.");
+        console.warn("Sales order details grid not found.");
     }
 }

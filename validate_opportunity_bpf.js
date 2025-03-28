@@ -1,28 +1,39 @@
 function onLoad(executionContext) {
-    var formContext = executionContext.getFormContext();
-    // Register BPF events dynamically
+    const formContext = executionContext.getFormContext();
+
+    // Register the event to validate BPF stage changes
     formContext.data.process.addOnPreStageChange(validateBPFStageMovement);
 }
+
 function validateBPFStageMovement(executionContext) {
-    var eventArgs = executionContext.getEventArgs(); // Get event arguments to prevent stage movement
-    var formContext = executionContext.getFormContext();
-    console.log("State Changed");
-    // Get Active Stage
-    var processFlow = formContext.data.process;
-    var activeStage = processFlow.getActiveStage();
+    const eventArgs = executionContext.getEventArgs(); 
+    const formContext = executionContext.getFormContext();
+
+    console.log("Stage change detected.");
+
+    // Get the active stage in the process flow
+    const processFlow = formContext.data.process;
+    const activeStage = processFlow.getActiveStage();
+
     if (!activeStage) {
-        console.log("No Active Stage Found.");
+        console.warn("No active stage found.");
         return;
     }
-    var activeStageName = activeStage.getName();
-    console.log("Current Stage: " + activeStageName);
-    // Restrict only in the "Propose" stage
+
+    const activeStageName = activeStage.getName();
+    console.log(`Current stage: ${activeStageName}`);
+
+    // Restrict movement from the "Propose" stage if conditions aren't met
     if (activeStageName === "Propose") {
-        var estimatedRevenue = formContext.getAttribute("estimatedvalue").getValue(); // Get Estimated Revenue
+        const estimatedRevenue = formContext.getAttribute("estimatedvalue").getValue();
+
         if (estimatedRevenue !== null && estimatedRevenue <= 30000) {
-            console.log("Estimated Revenue is too low.");
-            eventArgs.preventDefault(); // Prevents stage change
-            Xrm.Navigation.openAlertDialog({ text: "Estimated Revenue should be greater than 30,000. You cannot move to the next stage." });
+            console.warn("Stage movement blocked: Estimated revenue is too low.");
+            eventArgs.preventDefault(); // Prevent the stage change
+            
+            Xrm.Navigation.openAlertDialog({
+                text: "Estimated Revenue must be greater than 30,000 to proceed to the next stage."
+            });
         }
     }
 }

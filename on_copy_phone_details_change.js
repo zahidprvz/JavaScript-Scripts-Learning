@@ -1,43 +1,44 @@
 function onCopyPhoneDetailsChange(executionContext) {
-    var formContext = executionContext.getFormContext();
+    const formContext = executionContext.getFormContext();
 
-    // Get the field correctly
-    var copyPhoneField = formContext.getAttribute("new_copydetails");
+    // Get the "Copy Phone Details" field
+    const copyPhoneField = formContext.getAttribute("new_copydetails");
     if (!copyPhoneField) {
-        console.log("❌ Error: Copy Phone Details field not found.");
+        console.error("Error: 'Copy Phone Details' field not found.");
         return;
     }
 
-    var copyPhoneValue = copyPhoneField.getValue();
-    console.log("📌 Copy Phone Field Value Retrieved:", copyPhoneValue);
+    const copyPhoneValue = copyPhoneField.getValue();
+    console.log(`Copy Phone Field Value: ${copyPhoneValue}`);
 
     if (copyPhoneValue === null || copyPhoneValue === undefined) {
-        console.log("⚠️ No selection made for Copy Phone Details. Exiting.");
+        console.log("No selection made for 'Copy Phone Details'. Exiting function.");
         return;
     }
 
-    var phoneField = formContext.getAttribute("telephone1");
-    var otherPhoneField = formContext.getAttribute("telephone2");
+    // Get phone number fields
+    const phoneField = formContext.getAttribute("telephone1");
+    const otherPhoneField = formContext.getAttribute("telephone2");
 
     if (!phoneField || !otherPhoneField) {
-        console.log("❌ Error: One or more required fields not found.");
+        console.error("Error: One or more required phone fields are missing.");
         return;
     }
 
     if (copyPhoneValue === true || copyPhoneValue === 1) { 
-        // Handle 'Yes' selection
-        var phoneValue = phoneField.getValue();
-        console.log("✅ Copying Phone:", phoneValue);
-        otherPhoneField.setValue(phoneValue); // Copy value
-        formContext.getControl("telephone2").setDisabled(false); // Unlock field
-        console.log("✅ Other Phone field is now unlocked.");
+        // If "Yes" is selected, copy the phone number and enable the field
+        const phoneValue = phoneField.getValue();
+        console.log(`Copying phone number: ${phoneValue}`);
+        otherPhoneField.setValue(phoneValue);
+        formContext.getControl("telephone2").setDisabled(false);
+        console.log("Other Phone field is now editable.");
     } else if (copyPhoneValue === false || copyPhoneValue === 0) { 
-        // Handle 'No' selection
-        console.log("❌ Clearing Other Phone field.");
-        otherPhoneField.setValue(null); // Clear value
-        formContext.getControl("telephone2").setDisabled(true); // Lock field
-        console.log("❌ Other Phone field is now locked.");
+        // If "No" is selected, clear the field and disable it
+        console.log("Clearing Other Phone field.");
+        otherPhoneField.setValue(null);
+        formContext.getControl("telephone2").setDisabled(true);
+        console.log("Other Phone field is now locked.");
     } else {
-        console.log("⚠️ Unexpected Copy Phone Value:", copyPhoneValue);
+        console.warn(`Unexpected Copy Phone Value: ${copyPhoneValue}`);
     }
 }
