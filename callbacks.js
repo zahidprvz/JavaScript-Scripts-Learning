@@ -1,31 +1,16 @@
-function doSomething(callback) {
-    console.log("Do Something");
+function runEndless(callback) {
+    console.log("Running endlessly...");
+    console.log("I am still running...");
 
-    setTimeout(function() {
-        console.log("Something is done");
+    // starting out asynchronous task in javascript, so this will take time
+    setTimeout(function(){
         callback();
-    }, 1000);
+    }, 3000);
 }
 
-function finished() {
-    console.log("The callback function was executed");
+function afterThreeSeconds() {
+    console.log("After three seconds, I am tired!");
 }
 
-doSomething(finished);
-console.log("This line runs before callback")
-
-
-function doSomething1(callback) {
-    console.log("Do something");
-    
-    setTimeout(function() {
-        console.log("Something is done");
-    }, 1000);
-}
-
-function finished1() {
-    console.log("The callback function was executed")
-}
-
-doSomething1(finished1);
-console.log("This line runs before callback");
+runEndless(afterThreeSeconds);
+console.log("I have also drank water during running!");
