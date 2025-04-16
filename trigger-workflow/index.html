@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trigger Logic App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .animate-fall {
+      animation-name: fall;
+      animation-timing-function: ease-in;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-gray-100 to-gray-300 min-h-screen flex flex-col justify-center items-center py-10">
+
+  <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full text-center">
+    <h1 class="text-2xl font-semibold text-blue-600 mb-6">Trigger Workflow</h1>
+    <p class="text-gray-700 mb-4">Click the button below to start the Azure Logic App workflow.</p>
+    <button id="triggerButton"
+      class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-full py-3 px-6 transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 transform hover:scale-105">
+      <span class="inline-flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+          <path d="M6 9l6 6 6-6"></path>
+          <path d="M6 15H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"></path>
+          <path d="M18 15h2a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path>
+          <path d="M12 17v-4"></path>
+        </svg>
+        Run Workflow
+      </span>
+    </button>
+    <div id="responseMessage" class="mt-6 text-gray-800 font-medium whitespace-pre-line"></div>
+  </div>
+
+  <!-- Star Container -->
+  <div id="stars-container" class="pointer-events-none fixed inset-0 overflow-hidden z-50"></div>
+
+  <script>
+    const triggerButton = document.getElementById('triggerButton');
+    const responseMessage = document.getElementById('responseMessage');
+    const starsContainer = document.getElementById('stars-container');
+
+    const logicAppUrl = "https://prod-22.northcentralus.logic.azure.com:443/workflows/c8c87174144c492996ff8d388d870c76/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=PR7xeGwQ0yTXmcKQ_2ysal3LNglCW66_L_m92lvaqfg"; // Replace this with your actual Logic App trigger URL
+
+    function createStar() {
+      const star = document.createElement('div');
+      star.className = 'absolute w-2 h-2 bg-yellow-300 rounded-full opacity-70 animate-fall';
+      star.style.left = Math.random() * 100 + 'vw';
+      star.style.top = '-10px';
+      star.style.animationDuration = (1 + Math.random() * 2) + 's';
+      star.style.transform = `scale(${Math.random() * 1.5 + 0.5})`;
+      starsContainer.appendChild(star);
+
+      setTimeout(() => {
+        star.remove();
+      }, 3000);
+    }
+
+    function startStarRain() {
+      const interval = setInterval(() => {
+        createStar();
+      }, 80);
+      setTimeout(() => {
+        clearInterval(interval);
+      }, 3000); // 3 seconds of star rain
+    }
+
+    triggerButton.addEventListener('click', async () => {
+      responseMessage.textContent = "Loading...";
+      try {
+        const response = await fetch(logicAppUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const contentType = response.headers.get("content-type");
+
+        if (response.ok) {
+          let output;
+          if (contentType && contentType.includes("application/json")) {
+            const data = await response.json();
+            output = JSON.stringify(data, null, 2);
+          } else {
+            output = await response.text();
+          }
+          responseMessage.textContent = `✅ Workflow executed successfully!\n${output}`;
+          startStarRain();
+        } else {
+          let errorOutput;
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            errorOutput = errorData?.error?.message || 'Failed to trigger workflow';
+          } else {
+            errorOutput = await response.text();
+          }
+          responseMessage.textContent = `❌ Error: ${response.status} - ${errorOutput}`;
+        }
+      } catch (error) {
+        responseMessage.textContent = `⚠️ Exception: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+
+</html>
